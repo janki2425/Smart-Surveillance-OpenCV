@@ -80,21 +80,45 @@ while True:
                 color, 2
             )
 
-    # -------- Alert + Snapshot --------
+    # Live clock on screen
+    current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+    cv2.putText(
+        frame,
+        current_time,
+        (10, 30),
+        cv2.FONT_HERSHEY_SIMPLEX,
+        0.7,
+        (255, 255, 255),
+        2
+    )
+
+    # -------- Alert + Snapshot Logic --------
     if restricted_detected and not alert_triggered:
+        
+        # Get timestamp
+        timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+        # Put timestamp on frame
+        cv2.putText(
+            frame,
+            f"INTRUSION DETECTED: {timestamp}",
+            (10, H - 20),
+            cv2.FONT_HERSHEY_SIMPLEX,
+            0.6,
+            (0, 0, 255),
+            2
+        )
+
+        # Beep sound
         winsound.Beep(1500, 600)
 
-        timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-        filename = f"snapshots/intruder_{timestamp}.jpg" #saves photo in snapshots folder
+        # Save snapshot with timestamp in filename
+        filename = f"snapshots/intruder_{datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}.jpg"
         cv2.imwrite(filename, frame)
 
         alert_triggered = True
         alert_counter = 0
-
-    if alert_triggered:
-        alert_counter += 1
-        if alert_counter > ALERT_COOLDOWN_FRAMES:
-            alert_triggered = False
 
     # -------- Display --------
     cv2.imshow("Smart Surveillance System", frame)
